@@ -213,11 +213,11 @@ def save_lyapunov_plot(
     plt.close(fig)
 
 
-def interpret_lle(lle: float) -> str:
+def interpret_lle(lle: float, chaotic_threshold: float = LLE_CHAOTIC_THRESHOLD) -> str:
     """Interpret the largest Lyapunov exponent using the requested thresholds."""
-    if lle > LLE_CHAOTIC_THRESHOLD:
+    if lle > chaotic_threshold:
         return "System is likely CHAOTIC"
-    if lle < -LLE_CHAOTIC_THRESHOLD:
+    if lle < -chaotic_threshold:
         return "System is NOT chaotic (stable/periodic)"
     return "System is at the edge of chaos (periodic or quasi-periodic)"
 
@@ -291,6 +291,7 @@ def compute_rqa_metrics(
     if diagonal_lengths:
         _, counts = np.unique(diagonal_lengths, return_counts=True)
         probabilities = counts / counts.sum()
+        probabilities = probabilities[probabilities > 0]
         # Guard against a negative zero representation from floating-point roundoff.
         ent = max(float(-np.sum(probabilities * np.log(probabilities))), 0.0)
     else:
@@ -314,16 +315,21 @@ def compute_rqa_metrics(
     }
 
 
-def synthesize_verdict(lle: float, rqa_metrics: Dict[str, float]) -> str:
+def synthesize_verdict(
+    lle: float,
+    rqa_metrics: Dict[str, float],
+    chaotic_threshold: float = LLE_CHAOTIC_THRESHOLD,
+    periodic_det_threshold: float = DET_PERIODIC_THRESHOLD,
+) -> str:
     """Synthesize LLE and RQA into a final chaos verdict."""
     det = rqa_metrics["DET"]
-    if lle > LLE_CHAOTIC_THRESHOLD and det < DET_PERIODIC_THRESHOLD:
+    if lle > chaotic_threshold and det < periodic_det_threshold:
         return "Chaotic: positive LLE and lower DET both support sensitive, irregular dynamics."
-    if lle > LLE_CHAOTIC_THRESHOLD:
+    if lle > chaotic_threshold:
         return "Likely chaotic: the positive LLE indicates exponential divergence, while high DET shows the dynamics remain strongly deterministic."
-    if lle < -LLE_CHAOTIC_THRESHOLD and det > DET_PERIODIC_THRESHOLD:
+    if lle < -chaotic_threshold and det > periodic_det_threshold:
         return "Not chaotic: negative LLE and high DET are consistent with stable or periodic dynamics."
-    if lle < -LLE_CHAOTIC_THRESHOLD:
+    if lle < -chaotic_threshold:
         return "Likely not chaotic: the negative LLE does not support chaos, though recurrence structure is less clearly periodic."
     return "Edge of chaos or mixed evidence: the LLE is near zero, so longer or cleaner data may be needed for a stronger conclusion."
 
