@@ -135,7 +135,11 @@ def estimate_mean_period(series: np.ndarray) -> int:
 
 
 def rosenstein_lle(embedding: np.ndarray, mean_period: int, max_t: int = 50) -> Tuple[float, np.ndarray, np.ndarray, np.ndarray]:
-    """Estimate largest Lyapunov exponent with Rosenstein's method."""
+    """Estimate largest Lyapunov exponent with Rosenstein's method.
+
+    Returns:
+        Tuple of (lle_slope, time_steps, average_log_divergence, fitted_line_values).
+    """
     n_points = embedding.shape[0]
     max_t = min(max_t, n_points // 2)
     if max_t < 5:
@@ -353,7 +357,7 @@ def save_recurrence_plot(recurrence: np.ndarray, output_dir: str) -> None:
     plt.close()
 
 
-def run_analysis(csv_path: str, output_dir: str = "output") -> AnalysisResults:
+def run_analysis(csv_path: str, output_dir: str = "output", recurrence_fraction: float = 0.1) -> AnalysisResults:
     """Run full phase space analysis pipeline and save all required outputs."""
     os.makedirs(output_dir, exist_ok=True)
 
@@ -382,7 +386,7 @@ def run_analysis(csv_path: str, output_dir: str = "output") -> AnalysisResults:
     save_lyapunov_plot(t, divergence, fit_line, output_dir)
 
     distances = squareform(pdist(embedding_m))
-    epsilon = 0.1 * np.max(distances)  # Required threshold: 10% of maximum pairwise distance.
+    epsilon = recurrence_fraction * np.max(distances)
     recurrence = (distances <= epsilon).astype(int)
     save_recurrence_plot(recurrence, output_dir)
 
@@ -417,13 +421,23 @@ def parse_args() -> argparse.Namespace:
         default="output",
         help="Directory for saving generated plots (default: output).",
     )
+    parser.add_argument(
+        "--recurrence-fraction",
+        type=float,
+        default=0.1,
+        help="Recurrence threshold as fraction of max pairwise distance (default: 0.1).",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     """CLI entrypoint for full pipeline execution."""
     args = parse_args()
-    results = run_analysis(args.csv_path, output_dir=args.output_dir)
+    results = run_analysis(
+        args.csv_path,
+        output_dir=args.output_dir,
+        recurrence_fraction=args.recurrence_fraction,
+    )
     print_summary(results)
 
 

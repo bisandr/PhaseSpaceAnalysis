@@ -31,6 +31,12 @@ Optional output directory:
 python phase_space_analysis.py data/diff_sums.csv --output-dir output
 ```
 
+Optional recurrence threshold fraction (default `0.1`, i.e. 10% of max pairwise distance):
+
+```bash
+python phase_space_analysis.py data/diff_sums.csv --recurrence-fraction 0.1
+```
+
 ### Outputs
 
 The script creates the output directory automatically (default: `output/`) and saves:
