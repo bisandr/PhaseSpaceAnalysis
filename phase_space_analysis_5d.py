@@ -10,7 +10,6 @@ from typing import Dict, Iterable, List, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 from scipy.spatial.distance import pdist, squareform
 
 
@@ -36,7 +35,7 @@ def load_and_normalize(csv_path: str) -> Tuple[np.ndarray, np.ndarray, np.ndarra
         raise ValueError("Need at least 25 time steps for the requested analyses.")
 
     raw_mean = data.mean(axis=0)
-    raw_std = data.std(axis=0, ddof=0)
+    raw_std = data.std(axis=0, ddof=1)
     safe_std = np.where(raw_std == 0.0, 1.0, raw_std)
     normalized = (data - raw_mean) / safe_std
 
@@ -47,7 +46,7 @@ def load_and_normalize(csv_path: str) -> Tuple[np.ndarray, np.ndarray, np.ndarra
         print(f"  Dim {dim}: mean={mean_value:.6f}, std={std_value:.6f}")
 
     norm_mean = normalized.mean(axis=0)
-    norm_std = normalized.std(axis=0, ddof=0)
+    norm_std = normalized.std(axis=0, ddof=1)
     print("Normalized statistics:")
     for dim, (mean_value, std_value) in enumerate(zip(norm_mean, norm_std), start=1):
         print(f"  Dim {dim}: mean={mean_value:.6f}, std={std_value:.6f}")
@@ -117,7 +116,7 @@ def find_poincare_crossings(projected: np.ndarray) -> Tuple[np.ndarray, float]:
     for index in range(len(pc1) - 1):
         start_value = pc1[index]
         end_value = pc1[index + 1]
-        if start_value < threshold <= end_value and end_value > start_value:
+        if start_value < threshold <= end_value:
             fraction = (threshold - start_value) / (end_value - start_value)
             point = projected[index] + fraction * (projected[index + 1] - projected[index])
             crossings.append((float(point[1]), float(point[2])))
