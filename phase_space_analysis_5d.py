@@ -229,7 +229,7 @@ def build_recurrence_matrix(
     """Build a recurrence matrix in the original 5D space.
 
     The default threshold is the 10th percentile of all pairwise Euclidean
-    distances, matching the requested analysis recipe for this repository.
+    distances, following the analysis method requested for this repository.
     """
     pairwise_distances = pdist(data, metric="euclidean")
     epsilon = float(np.percentile(pairwise_distances, percentile))
@@ -291,6 +291,7 @@ def compute_rqa_metrics(
     if diagonal_lengths:
         _, counts = np.unique(diagonal_lengths, return_counts=True)
         probabilities = counts / counts.sum()
+        # Guard against a negative zero representation from floating-point roundoff.
         ent = max(float(-np.sum(probabilities * np.log(probabilities))), 0.0)
     else:
         ent = 0.0

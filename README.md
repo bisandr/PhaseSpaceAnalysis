@@ -53,7 +53,7 @@ It also prints a summary with optimal τ, optimal m, LLE, and RQA metrics.
 
 ## Phase Space Analysis 5D
 
-This repository also includes `phase_space_analysis_5d.py` for multivariate phase space analysis of CSV files containing one 5D state vector per row (for example `data/vectors_5d.csv`).
+This repository also includes `phase_space_analysis_5d.py` for multivariate phase space analysis of CSV files containing one 5D state vector per row (for example, `data/vectors_5d.csv`).
 
 ### What it computes
 
