@@ -120,18 +120,18 @@ def find_poincare_crossings(projected: np.ndarray) -> Tuple[np.ndarray, float]:
     pc1 = projected[:, 0]
     threshold = float(np.percentile(pc1, 50))
 
-    crossings: List[Tuple[float, float]] = []
+    poincare_points: List[Tuple[float, float]] = []
     for index in range(len(pc1) - 1):
         start_value = pc1[index]
         end_value = pc1[index + 1]
         if start_value < threshold <= end_value:
             fraction = (threshold - start_value) / (end_value - start_value)
             point = projected[index] + fraction * (projected[index + 1] - projected[index])
-            crossings.append((float(point[1]), float(point[2])))
+            poincare_points.append((float(point[1]), float(point[2])))
 
-    if not crossings:
+    if not poincare_points:
         return np.empty((0, 2)), threshold
-    return np.asarray(crossings), threshold
+    return np.asarray(poincare_points), threshold
 
 
 def save_poincare_section(points: np.ndarray, threshold: float, output_dir: str) -> None:
@@ -292,7 +292,7 @@ def compute_rqa_metrics(
         _, counts = np.unique(diagonal_lengths, return_counts=True)
         probabilities = counts / counts.sum()
         probabilities = probabilities[probabilities > 0]
-        # Guard against a negative zero representation from floating-point roundoff.
+        # Guard against negative values introduced by floating-point roundoff errors.
         ent = max(float(-np.sum(probabilities * np.log(probabilities))), 0.0)
     else:
         ent = 0.0
