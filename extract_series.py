@@ -1,3 +1,15 @@
+# extract_series.py
+#
+# Reads a binary events CSV file and extracts time series for each of the 5 elements.
+# For each row, it finds the 1-based positions of the 1s (one per element slot).
+# It then computes the differences between consecutive elements within each row
+# (2nd-1st, 3rd-2nd, etc.) and the sum of all four differences.
+#
+# Output files written to data/:
+#   element_1st.csv ... element_5th.csv  — value series for each element position
+#   diff_2nd-1st.csv ... diff_5th-4th.csv — difference series between adjacent elements
+#   diff_sums.csv                         — sum of all four differences per row
+
 import csv
 
 input_path = "data/events.csv"

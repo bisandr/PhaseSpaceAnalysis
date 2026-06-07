@@ -1,3 +1,15 @@
+# convert_events.py
+#
+# Converts a binary-encoded events CSV file into an index-based CSV file.
+# Each input row contains 0s and 1s representing whether an element is present.
+# Each output row lists the 1-based positions (indices) of the 1s in that row.
+#
+# The output file is automatically named based on the number of indices per row
+# and the date found in the input filename (e.g. events5_260515.csv).
+#
+# Usage: python convert_events.py [input_file]
+#        Defaults to data/events.csv if no input file is provided.
+
 import argparse
 import csv
 import os
